@@ -38,17 +38,17 @@ namespace BeatThat.StateStores
 
         public DataType stateData { get { return m_state.data; } }
 
-		private void OnLoadFailed(LoadFailedDTO err)
+		virtual protected void OnLoadFailed(LoadFailedDTO err)
 		{
             UpdateLoadStatus(this.loadStatus.LoadFailed(err, DateTime.Now));
 		}
 
-        private void OnLoadStarted()
+        virtual protected void OnLoadStarted()
 		{
             UpdateLoadStatus(this.loadStatus.LoadStarted(DateTime.Now));
 		}
 
-        private void OnLoadSucceeded(LoadSucceededDTO<DataType> dto)
+        virtual protected void OnLoadSucceeded(LoadSucceededDTO<DataType> dto)
 		{
             State<DataType> s;
             GetState(out s);
@@ -57,22 +57,31 @@ namespace BeatThat.StateStores
             UpdateState(ref s);
 		}
 
-        protected void UpdateState(ref State<DataType> state)
+        virtual protected void UpdateState(ref State<DataType> state, bool sendUpdated = true)
         {
             m_state = state;
-            State<DataType>.Updated();
+            if (sendUpdated)
+            {
+                State<DataType>.Updated();
+            }
         }
 
-        protected void UpdateData(ref DataType data)
+        virtual protected void UpdateData(ref DataType data, bool sendUpdated = true)
         {
             m_state.data = data;
-            State<DataType>.Updated();
+            if (sendUpdated)
+            {
+                State<DataType>.Updated();
+            }
         }
 
-        protected void UpdateLoadStatus(LoadStatus loadStatus)
+        virtual protected void UpdateLoadStatus(LoadStatus loadStatus, bool sendUpdated = true)
         {
             m_state.loadStatus = loadStatus;
-            State<DataType>.Updated();
+            if (sendUpdated)
+            {
+                State<DataType>.Updated();
+            }
         }
 
         protected void ResetState()
