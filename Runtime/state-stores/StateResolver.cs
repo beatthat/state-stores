@@ -6,9 +6,9 @@ namespace BeatThat.StateStores
     /// <summary>
     /// an API capable of loading data a state item that needs no parameters
     /// </summary>
-    public interface StateAPI<DataType>
+    public interface StateResolver<DataType>
 	{
-        Request<LoadResponseDTO<DataType>> Get(Action<Request<LoadResponseDTO<DataType>>> callback);
+        Request<LoadResponseDTO<DataType>> Resolve(Action<Request<LoadResponseDTO<DataType>>> callback);
 	}
 }
 

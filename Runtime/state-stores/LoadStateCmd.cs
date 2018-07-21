@@ -18,14 +18,14 @@ namespace BeatThat.StateStores
     ///
     /// </code>
     /// </summary>
-    public class LoadStateCmd<DataType> : LoadStateCmd<DataType, HasState<DataType>, StateAPI<DataType>> {}
+    public class LoadStateCmd<DataType> : LoadStateCmd<DataType, HasState<DataType>, StateResolver<DataType>> {}
 
     /// <summary>
     /// Generic command to load a single entity by a load key (id or alias)
     /// </summary>
     public class LoadStateCmd<DataType, StoreType, APIType> : NotificationCommand
         where StoreType : HasState<DataType>
-        where APIType : StateAPI<DataType>
+        where APIType : StateResolver<DataType>
 	{
         public bool m_debug;
 
@@ -45,7 +45,7 @@ namespace BeatThat.StateStores
 
             State<DataType>.LoadStarted ();
 
-            this.api.Get((r =>
+            this.api.Resolve((r =>
             {
                 if (LoadErrorHelper.HandledError(r, State<DataType>.LOAD_FAILED, debug: m_debug))
                 {
