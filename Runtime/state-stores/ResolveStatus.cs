@@ -3,7 +3,7 @@ using System;
 namespace BeatThat.StateStores
 {
     [Serializable]
-	public struct LoadStatus
+	public struct ResolveStatus
 	{
 		public bool hasLoaded;
 		public bool isLoadInProgress;
@@ -11,9 +11,9 @@ namespace BeatThat.StateStores
 		public DateTime updatedAt;
 		public string loadError;
 
-		public LoadStatus LoadFailed(LoadFailedDTO dto, DateTime updateTime)
+		public ResolveStatus LoadFailed(ResolveFailedDTO dto, DateTime updateTime)
 		{
-			return new LoadStatus {
+			return new ResolveStatus {
 				hasLoaded = this.hasLoaded,
 				isLoadInProgress = false,
 				loadStartedAt = this.loadStartedAt,
@@ -22,9 +22,9 @@ namespace BeatThat.StateStores
 			};
 		}
 
-		public LoadStatus LoadStarted(DateTime updateTime)
+		public ResolveStatus LoadStarted(DateTime updateTime)
 		{
-			return new LoadStatus {
+			return new ResolveStatus {
 				hasLoaded = this.hasLoaded,
 				isLoadInProgress = true,
 				loadStartedAt = updateTime,
@@ -33,9 +33,9 @@ namespace BeatThat.StateStores
 			};
 		}
 
-		public LoadStatus LoadSucceeded(DateTime updateTime)
+		public ResolveStatus LoadSucceeded(DateTime updateTime)
 		{
-			return new LoadStatus {
+			return new ResolveStatus {
 				hasLoaded = true,
 				isLoadInProgress = false,
 				loadStartedAt = updateTime,

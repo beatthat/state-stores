@@ -18,36 +18,40 @@ namespace BeatThat.StateStores
     ///
     /// </code>
     /// </summary>
-    public class LoadStateCmd<DataType> : LoadStateCmd<DataType, HasState<DataType>, StateResolver<DataType>> {}
+    public class ResolveStateCmd<DataType> : ResolveStateCmd<DataType, HasState<DataType>, StateResolver<DataType>> {}
 
     /// <summary>
     /// Generic command to load a single entity by a load key (id or alias)
     /// </summary>
-    public class LoadStateCmd<DataType, StoreType, APIType> : NotificationCommand
+    public class ResolveStateCmd<DataType, StoreType, ResolverType> : NotificationCommandBase<ResolveRequestDTO>
         where StoreType : HasState<DataType>
-        where APIType : StateResolver<DataType>
+        where ResolverType : StateResolver<DataType>
 	{
         public bool m_debug;
 
         [Inject] private StoreType hasData { get; set; }
-        [Inject] private APIType api { get; set; }
+        [Inject] private ResolverType resolver { get; set; }
 
-        public override string notificationType { get { return State<DataType>.LOAD_REQUESTED; } }
+        public override string notificationType { get { return State<DataType>.RESOLVE_REQUESTED; } }
 
-        public override void Execute ()
+        public override void Execute (ResolveRequestDTO dto)
 		{
-            switch(LoadAdviceHelper.AdviseOnAndSendErrorIfCoolingDown (hasData, State<DataType>.LOAD_FAILED, debug: m_debug)) {
-                case LoadAdvice.PROCEED:
-                    break;
-                default:
-                    return;
-			}
-
-            State<DataType>.LoadStarted ();
-
-            this.api.Resolve((r =>
+            if (!dto.forceUpdate)
             {
-                if (LoadErrorHelper.HandledError(r, State<DataType>.LOAD_FAILED, debug: m_debug))
+                switch (ResolveAdviceHelper.AdviseOnAndSendErrorIfCoolingDown(hasData, State<DataType>.RESOLVE_FAILED, debug: m_debug))
+                {
+                    case ResolveAdvice.PROCEED:
+                        break;
+                    default:
+                        return;
+                }
+            }
+
+            State<DataType>.ResolveStarted ();
+
+            this.resolver.Resolve((r =>
+            {
+                if (ResolveErrorHelper.HandledError(r, State<DataType>.RESOLVE_FAILED, debug: m_debug))
                 {
                     return;
                 }
@@ -55,15 +59,15 @@ namespace BeatThat.StateStores
                 var resultItem = r.item;
 
                 if(!IsOk(resultItem.status)) {
-                    NotificationBus.Send(State<DataType>.LOAD_FAILED, new LoadFailedDTO
+                    NotificationBus.Send(State<DataType>.RESOLVE_FAILED, new ResolveFailedDTO
                     {
                         error = resultItem.status
                     });
                     return;
                 }
 
-                State<DataType>.LoadSucceeded(
-                    new LoadSucceededDTO<DataType> {
+                State<DataType>.ResolveSucceeded(
+                    new ResolveSucceededDTO<DataType> {
                     data = resultItem.data
                 });
 			}));

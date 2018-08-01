@@ -11,30 +11,35 @@ namespace BeatThat.StateStores
     {
         
         public DataType data;
-        public LoadStatus loadStatus;
+        public ResolveStatus loadStatus;
 
-        public static readonly string LOAD_REQUESTED = typeof(DataType).FullName + "_LOAD_REQUESTED";
-        public static void LoadRequested(Opts opts = Opts.RequireReceiver)
+        public static readonly string RESOLVE_REQUESTED = typeof(DataType).FullName + "_RESOLVE_REQUESTED";
+        public static void ResolveRequested(Opts opts = Opts.RequireReceiver)
         {
-            N.Send(LOAD_REQUESTED, opts);
+            ResolveRequested(default(ResolveRequestDTO), opts);
         }
 
-        public static readonly string LOAD_STARTED = typeof(DataType).FullName + "_LOAD_STARTED";
-        public static void LoadStarted(Opts opts = Opts.RequireReceiver)
+        public static void ResolveRequested(ResolveRequestDTO dto, Opts opts = Opts.RequireReceiver)
         {
-            N.Send(LOAD_STARTED, opts);
+            N.Send(RESOLVE_REQUESTED, dto, opts);
         }
 
-        public static readonly string LOAD_SUCCEEDED = typeof(DataType).FullName + "_LOAD_SUCCEEDED";
-        public static void LoadSucceeded(LoadSucceededDTO<DataType> dto, Opts opts = Opts.RequireReceiver)
+        public static readonly string RESOLVE_STARTED = typeof(DataType).FullName + "_RESOLVE_STARTED";
+        public static void ResolveStarted(Opts opts = Opts.RequireReceiver)
         {
-            N.Send(LOAD_SUCCEEDED, dto, opts);
+            N.Send(RESOLVE_STARTED, opts);
         }
 
-        public static readonly string LOAD_FAILED = typeof(DataType).FullName + "_LOAD_FAILED";
-        public static void LoadFailed(LoadFailedDTO dto, Opts opts = Opts.RequireReceiver)
+        public static readonly string RESOLVE_SUCCEEDED = typeof(DataType).FullName + "_RESOLVE_SUCCEEDED";
+        public static void ResolveSucceeded(ResolveSucceededDTO<DataType> dto, Opts opts = Opts.RequireReceiver)
         {
-            N.Send(LOAD_FAILED, dto, opts);
+            N.Send(RESOLVE_SUCCEEDED, dto, opts);
+        }
+
+        public static readonly string RESOLVE_FAILED = typeof(DataType).FullName + "_RESOLVE_FAILED";
+        public static void ResolveFailed(ResolveFailedDTO dto, Opts opts = Opts.RequireReceiver)
+        {
+            N.Send(RESOLVE_FAILED, dto, opts);
         }
 
         public static readonly string UPDATED = typeof(DataType).FullName + "_UPDATED";
@@ -78,12 +83,12 @@ namespace BeatThat.StateStores
 
                 CleanupBinding();
                 this.storeBinding = N.Add(UPDATED, this.OnStoreUpdate);
-                State<DataType>.LoadRequested();
+                State<DataType>.ResolveRequested();
             }
 
             private bool TryComplete()
             {
-                LoadStatus loadStatus = store.loadStatus;
+                ResolveStatus loadStatus = store.loadStatus;
                 if (loadStatus.hasLoaded)
                 {
                     this.item = store.stateData;

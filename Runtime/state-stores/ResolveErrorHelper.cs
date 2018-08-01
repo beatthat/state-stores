@@ -5,7 +5,7 @@ using UnityEngine;
 namespace BeatThat.StateStores
 {
 
-    public static class LoadErrorHelper
+    public static class ResolveErrorHelper
 	{
 		public static bool HandledError(HasError r, string errorNotification, bool debug = false)
 		{
@@ -18,7 +18,7 @@ namespace BeatThat.StateStores
 			Debug.LogWarning("[" + Time.frameCount + "] error loading : " + r.error);
 			#endif
 
-			NotificationBus.Send(errorNotification, new LoadFailedDTO {
+			NotificationBus.Send(errorNotification, new ResolveFailedDTO {
 				error = r
 			});
 			return true;

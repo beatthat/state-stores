@@ -4,8 +4,10 @@ using System;
 namespace BeatThat.StateStores
 {
     [Serializable]
-	public struct LoadSucceededDTO<DataType>
+	public struct ResolveResponseDTO<DataType>
 	{
+        public string status;
+        public string message;
         public DataType data;
 	}
 }

@@ -1,6 +1,6 @@
 namespace BeatThat.StateStores
 {
-    public enum LoadAdvice
+    public enum ResolveAdvice
 	{
 		PROCEED = 0,
 		CANCEL_LOADED_AND_UNEXPIRED = 1,

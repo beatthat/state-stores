@@ -6,13 +6,13 @@ using UnityEngine;
 namespace BeatThat.StateStores
 {
 
-    public static class LoadAdviceHelper
+    public static class ResolveAdviceHelper
 	{
 		public const float DEFAULT_LOAD_TIMEOUT_SECS = 5f;
 		public const float DEFAULT_RETRY_MIN_INTERVAL_SECS = 2f;
 		public const float DEFAULT_TTL_SECS = -1f;
 
-        public static LoadAdvice AdviseOnAndSendErrorIfCoolingDown(
+        public static ResolveAdvice AdviseOnAndSendErrorIfCoolingDown(
             HasStateLoadStatus hasLoadStatus,
             string errorNotification,
             float loadTimeoutSecs = DEFAULT_LOAD_TIMEOUT_SECS,
@@ -21,8 +21,8 @@ namespace BeatThat.StateStores
             bool debug = false)
         {
             var advice = AdviseOn(hasLoadStatus, loadTimeoutSecs, retryMinIntervalSecs, ttlSecs, debug);
-            if(advice == LoadAdvice.CANCEL_ERROR_COOL_DOWN) {
-                NotificationBus.Send(errorNotification, new LoadFailedDTO
+            if(advice == ResolveAdvice.CANCEL_ERROR_COOL_DOWN) {
+                NotificationBus.Send(errorNotification, new ResolveFailedDTO
                 {
                     error = "load has failed for id and is in cooldown period"
                 });
@@ -30,14 +30,14 @@ namespace BeatThat.StateStores
             return advice;
         }
 
-		public static LoadAdvice AdviseOn(
+		public static ResolveAdvice AdviseOn(
 			HasStateLoadStatus hasLoadStatus, 
 			float loadTimeoutSecs = DEFAULT_LOAD_TIMEOUT_SECS,
 			float retryMinIntervalSecs = DEFAULT_RETRY_MIN_INTERVAL_SECS, 
 			float ttlSecs = DEFAULT_TTL_SECS, 
 			bool debug = false)
 		{
-            LoadStatus loadStatus = hasLoadStatus.loadStatus;
+            ResolveStatus loadStatus = hasLoadStatus.loadStatus;
 
 			if(loadStatus.hasLoaded && (ttlSecs < 0f || loadStatus.updatedAt.AddSeconds(ttlSecs) > DateTime.Now)) {
 				#if UNITY_EDITOR || DEBUG_UNSTRIP
@@ -45,7 +45,7 @@ namespace BeatThat.StateStores
 					Debug.Log("[" + Time.frameCount + "] skipping load attempt (already loaded and not expired)");
 				}
 				#endif
-				return LoadAdvice.CANCEL_LOADED_AND_UNEXPIRED;
+				return ResolveAdvice.CANCEL_LOADED_AND_UNEXPIRED;
 			}
 
 			if (loadStatus.isLoadInProgress && loadStatus.loadStartedAt.AddSeconds(loadTimeoutSecs) > DateTime.Now) {
@@ -54,7 +54,7 @@ namespace BeatThat.StateStores
 					Debug.Log("[" + Time.frameCount + "] skipping load attempt (load in progress started at " + loadStatus.loadStartedAt + ")");
 				}
 				#endif
-				return LoadAdvice.CANCEL_IN_PROGRESS;
+				return ResolveAdvice.CANCEL_IN_PROGRESS;
 			}
 
 			if (!string.IsNullOrEmpty(loadStatus.loadError) && loadStatus.updatedAt.AddSeconds(retryMinIntervalSecs) > DateTime.Now) {
@@ -63,10 +63,10 @@ namespace BeatThat.StateStores
 					Debug.Log("[" + Time.frameCount + "] skipping load attempt (load in progress started at " + loadStatus.loadStartedAt + ")");
 				}
 				#endif
-				return LoadAdvice.CANCEL_ERROR_COOL_DOWN;
+				return ResolveAdvice.CANCEL_ERROR_COOL_DOWN;
 			}
 
-			return LoadAdvice.PROCEED;
+			return ResolveAdvice.PROCEED;
 		}
 	}
 }

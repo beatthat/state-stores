@@ -4,7 +4,7 @@ namespace BeatThat.StateStores
 	{
         bool isLoaded { get; }
 
-        LoadStatus loadStatus { get; }
+        ResolveStatus loadStatus { get; }
 	}
 }
 

@@ -4,7 +4,7 @@ using BeatThat.Requests;
 namespace BeatThat.StateStores
 {
     [Serializable]
-	public struct LoadFailedDTO
+	public struct ResolveFailedDTO
 	{
 		public object error;
 

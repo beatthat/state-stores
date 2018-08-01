@@ -9,7 +9,7 @@ namespace BeatThat.StateStores
     public abstract class StateStore : BindingService, HasStateLoadStatus
     {
         public abstract bool isLoaded { get; }
-        public abstract LoadStatus loadStatus { get; }
+        public abstract ResolveStatus loadStatus { get; }
     }
 
     public class StateStore<DataType> : StateStore, HasState<DataType>
@@ -18,9 +18,9 @@ namespace BeatThat.StateStores
 
 		override protected void BindAll()
 		{
-            Bind <LoadSucceededDTO<DataType>>(State<DataType>.LOAD_SUCCEEDED, this.OnLoadSucceeded);
-            Bind(State<DataType>.LOAD_STARTED, this.OnLoadStarted);
-            Bind <LoadFailedDTO>(State<DataType>.LOAD_FAILED, this.OnLoadFailed);
+            Bind <ResolveSucceededDTO<DataType>>(State<DataType>.RESOLVE_SUCCEEDED, this.OnLoadSucceeded);
+            Bind(State<DataType>.RESOLVE_STARTED, this.OnLoadStarted);
+            Bind <ResolveFailedDTO>(State<DataType>.RESOLVE_FAILED, this.OnLoadFailed);
             BindStore();
 		}
 
@@ -32,13 +32,13 @@ namespace BeatThat.StateStores
         override public bool isLoaded { get { return m_state.loadStatus.hasLoaded; } }
 
 
-        override public LoadStatus loadStatus  { get { return m_state.loadStatus; } }
+        override public ResolveStatus loadStatus  { get { return m_state.loadStatus; } }
 			
         public State<DataType> state { get { return m_state; } }
 
         public DataType stateData { get { return m_state.data; } }
 
-		virtual protected void OnLoadFailed(LoadFailedDTO err)
+		virtual protected void OnLoadFailed(ResolveFailedDTO err)
 		{
             UpdateLoadStatus(this.loadStatus.LoadFailed(err, DateTime.Now));
 		}
@@ -48,7 +48,7 @@ namespace BeatThat.StateStores
             UpdateLoadStatus(this.loadStatus.LoadStarted(DateTime.Now));
 		}
 
-        virtual protected void OnLoadSucceeded(LoadSucceededDTO<DataType> dto)
+        virtual protected void OnLoadSucceeded(ResolveSucceededDTO<DataType> dto)
 		{
             State<DataType> s;
             GetState(out s);
@@ -75,7 +75,7 @@ namespace BeatThat.StateStores
             }
         }
 
-        virtual protected void UpdateLoadStatus(LoadStatus loadStatus, bool sendUpdated = true)
+        virtual protected void UpdateLoadStatus(ResolveStatus loadStatus, bool sendUpdated = true)
         {
             m_state.loadStatus = loadStatus;
             if (sendUpdated)
