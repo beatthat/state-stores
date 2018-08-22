@@ -40,19 +40,19 @@ namespace BeatThat.StateStores
 
 		virtual protected void OnLoadFailed(ResolveFailedDTO err)
 		{
-            UpdateLoadStatus(this.loadStatus.LoadFailed(err, DateTime.Now));
+            UpdateLoadStatus(this.loadStatus.LoadFailed(err, DateTimeOffset.Now));
 		}
 
         virtual protected void OnLoadStarted()
 		{
-            UpdateLoadStatus(this.loadStatus.LoadStarted(DateTime.Now));
+            UpdateLoadStatus(this.loadStatus.LoadStarted(DateTimeOffset.Now));
 		}
 
         virtual protected void OnLoadSucceeded(ResolveSucceededDTO<DataType> dto)
 		{
             State<DataType> s;
             GetState(out s);
-            s.loadStatus = state.loadStatus.LoadSucceeded(DateTime.Now);
+            s.loadStatus = state.loadStatus.LoadSucceeded(DateTimeOffset.Now);
             s.data = dto.data;
             UpdateState(ref s);
 		}

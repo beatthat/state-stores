@@ -7,11 +7,11 @@ namespace BeatThat.StateStores
 	{
 		public bool hasLoaded;
 		public bool isLoadInProgress;
-		public DateTime loadStartedAt;
-		public DateTime updatedAt;
+		public DateTimeOffset loadStartedAt;
+		public DateTimeOffset updatedAt;
 		public string loadError;
 
-		public ResolveStatus LoadFailed(ResolveFailedDTO dto, DateTime updateTime)
+		public ResolveStatus LoadFailed(ResolveFailedDTO dto, DateTimeOffset updateTime)
 		{
 			return new ResolveStatus {
 				hasLoaded = this.hasLoaded,
@@ -22,7 +22,7 @@ namespace BeatThat.StateStores
 			};
 		}
 
-		public ResolveStatus LoadStarted(DateTime updateTime)
+		public ResolveStatus LoadStarted(DateTimeOffset updateTime)
 		{
 			return new ResolveStatus {
 				hasLoaded = this.hasLoaded,
@@ -33,7 +33,7 @@ namespace BeatThat.StateStores
 			};
 		}
 
-		public ResolveStatus LoadSucceeded(DateTime updateTime)
+		public ResolveStatus LoadSucceeded(DateTimeOffset updateTime)
 		{
 			return new ResolveStatus {
 				hasLoaded = true,

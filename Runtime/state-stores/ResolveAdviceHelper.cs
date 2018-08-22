@@ -39,7 +39,7 @@ namespace BeatThat.StateStores
 		{
             ResolveStatus loadStatus = hasLoadStatus.loadStatus;
 
-			if(loadStatus.hasLoaded && (ttlSecs < 0f || loadStatus.updatedAt.AddSeconds(ttlSecs) > DateTime.Now)) {
+			if(loadStatus.hasLoaded && (ttlSecs < 0f || loadStatus.updatedAt.AddSeconds(ttlSecs) > DateTimeOffset.Now)) {
 				#if UNITY_EDITOR || DEBUG_UNSTRIP
 				if(debug) {
 					Debug.Log("[" + Time.frameCount + "] skipping load attempt (already loaded and not expired)");
@@ -48,7 +48,7 @@ namespace BeatThat.StateStores
 				return ResolveAdvice.CANCEL_LOADED_AND_UNEXPIRED;
 			}
 
-			if (loadStatus.isLoadInProgress && loadStatus.loadStartedAt.AddSeconds(loadTimeoutSecs) > DateTime.Now) {
+			if (loadStatus.isLoadInProgress && loadStatus.loadStartedAt.AddSeconds(loadTimeoutSecs) > DateTimeOffset.Now) {
 				#if UNITY_EDITOR || DEBUG_UNSTRIP
 				if(debug) {
 					Debug.Log("[" + Time.frameCount + "] skipping load attempt (load in progress started at " + loadStatus.loadStartedAt + ")");
@@ -57,7 +57,7 @@ namespace BeatThat.StateStores
 				return ResolveAdvice.CANCEL_IN_PROGRESS;
 			}
 
-			if (!string.IsNullOrEmpty(loadStatus.loadError) && loadStatus.updatedAt.AddSeconds(retryMinIntervalSecs) > DateTime.Now) {
+			if (!string.IsNullOrEmpty(loadStatus.loadError) && loadStatus.updatedAt.AddSeconds(retryMinIntervalSecs) > DateTimeOffset.Now) {
 				#if UNITY_EDITOR || DEBUG_UNSTRIP
 				if(debug) {
 					Debug.Log("[" + Time.frameCount + "] skipping load attempt (load in progress started at " + loadStatus.loadStartedAt + ")");
