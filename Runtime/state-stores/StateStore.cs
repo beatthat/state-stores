@@ -21,6 +21,7 @@ namespace BeatThat.StateStores
             Bind <ResolveSucceededDTO<DataType>>(State<DataType>.RESOLVE_SUCCEEDED, this.OnLoadSucceeded);
             Bind(State<DataType>.RESOLVE_STARTED, this.OnLoadStarted);
             Bind <ResolveFailedDTO>(State<DataType>.RESOLVE_FAILED, this.OnLoadFailed);
+            Bind<StoreStateDTO<DataType>>(State<DataType>.STORE, this.OnStore);
             BindStore();
 		}
 
@@ -56,6 +57,15 @@ namespace BeatThat.StateStores
             s.data = dto.data;
             UpdateState(ref s);
 		}
+
+        virtual protected void OnStore(StoreStateDTO<DataType> dto)
+        {
+            State<DataType> s;
+            GetState(out s);
+            s.loadStatus = state.loadStatus.LoadSucceeded(DateTimeOffset.Now);
+            s.data = dto.data;
+            UpdateState(ref s);
+        }
 
         virtual protected void UpdateState(ref State<DataType> state, bool sendUpdated = true)
         {

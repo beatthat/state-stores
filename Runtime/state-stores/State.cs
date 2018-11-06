@@ -42,6 +42,13 @@ namespace BeatThat.StateStores
             N.Send(RESOLVE_FAILED, dto, opts);
         }
 
+        public static readonly string STORE = typeof(DataType).FullName + "_STORED";
+        public static void Store(StoreStateDTO<DataType> dto, Opts opts = Opts.RequireReceiver)
+        {
+            N.Send(STORE, dto, opts);
+        }
+
+
         public static readonly string UPDATED = typeof(DataType).FullName + "_UPDATED";
         public static void Updated(Opts opts = Opts.DontRequireReceiver)
         {
