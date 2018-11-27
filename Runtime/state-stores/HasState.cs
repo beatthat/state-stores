@@ -1,9 +1,11 @@
 namespace BeatThat.StateStores
 {
-    public interface HasState<DataType> : HasStateData<DataType>, HasStateLoadStatus
+    public interface HasState<DataType> : HasStateData<DataType>, HasStateResolveStatus
 	{
         State<DataType> state { get; }
 	}
+
+
 }
 
 

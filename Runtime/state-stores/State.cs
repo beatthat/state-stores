@@ -95,8 +95,8 @@ namespace BeatThat.StateStores
 
             private bool TryComplete()
             {
-                ResolveStatus loadStatus = store.loadStatus;
-                if (loadStatus.hasLoaded)
+                ResolveStatus loadStatus = store.resolveStatus;
+                if (loadStatus.hasResolved)
                 {
                     this.item = store.stateData;
                     CompleteRequest();

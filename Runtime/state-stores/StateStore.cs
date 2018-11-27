@@ -6,10 +6,10 @@ namespace BeatThat.StateStores
     /// <summary>
     /// Non generic base class mainly to enable things like a default Unity editor
     /// </summary>
-    public abstract class StateStore : BindingService, HasStateLoadStatus
+    public abstract class StateStore : BindingService, HasStateResolveStatus
     {
         public abstract bool isLoaded { get; }
-        public abstract ResolveStatus loadStatus { get; }
+        public abstract ResolveStatus resolveStatus { get; }
     }
 
     public class StateStore<DataType> : StateStore, HasState<DataType>
@@ -30,10 +30,10 @@ namespace BeatThat.StateStores
         /// </summary>
         virtual protected void BindStore() {}
 
-        override public bool isLoaded { get { return m_state.loadStatus.hasLoaded; } }
+        override public bool isLoaded { get { return m_state.loadStatus.hasResolved; } }
 
 
-        override public ResolveStatus loadStatus  { get { return m_state.loadStatus; } }
+        override public ResolveStatus resolveStatus  { get { return m_state.loadStatus; } }
 			
         public State<DataType> state { get { return m_state; } }
 
@@ -41,12 +41,12 @@ namespace BeatThat.StateStores
 
 		virtual protected void OnLoadFailed(ResolveFailedDTO err)
 		{
-            UpdateLoadStatus(this.loadStatus.LoadFailed(err, DateTimeOffset.Now));
+            UpdateLoadStatus(this.resolveStatus.LoadFailed(err, DateTimeOffset.Now));
 		}
 
         virtual protected void OnLoadStarted()
 		{
-            UpdateLoadStatus(this.loadStatus.LoadStarted(DateTimeOffset.Now));
+            UpdateLoadStatus(this.resolveStatus.LoadStarted(DateTimeOffset.Now));
 		}
 
         virtual protected void OnLoadSucceeded(ResolveSucceededDTO<DataType> dto)
