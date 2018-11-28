@@ -7,11 +7,12 @@ namespace BeatThat.StateStores
 {
     using N = NotificationBus;
     using Opts = NotificationReceiverOptions;
+    [Serializable]
     public struct State<DataType> 
     {
         
         public DataType data;
-        public ResolveStatus loadStatus;
+        public ResolveStatus resolveStatus;
 
         public static readonly string RESOLVE_REQUESTED = typeof(DataType).FullName + "_RESOLVE_REQUESTED";
         public static void ResolveRequested(Opts opts = Opts.RequireReceiver)

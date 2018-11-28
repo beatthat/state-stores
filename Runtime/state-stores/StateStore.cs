@@ -1,5 +1,6 @@
 using System;
 using BeatThat.Bindings;
+using UnityEngine;
 
 namespace BeatThat.StateStores
 {
@@ -30,10 +31,10 @@ namespace BeatThat.StateStores
         /// </summary>
         virtual protected void BindStore() {}
 
-        override public bool isLoaded { get { return m_state.loadStatus.hasResolved; } }
+        override public bool isLoaded { get { return m_state.resolveStatus.hasResolved; } }
 
 
-        override public ResolveStatus resolveStatus  { get { return m_state.loadStatus; } }
+        override public ResolveStatus resolveStatus  { get { return m_state.resolveStatus; } }
 			
         public State<DataType> state { get { return m_state; } }
 
@@ -41,19 +42,19 @@ namespace BeatThat.StateStores
 
 		virtual protected void OnLoadFailed(ResolveFailedDTO err)
 		{
-            UpdateLoadStatus(this.resolveStatus.LoadFailed(err, DateTimeOffset.Now));
+            UpdateResolveStatus(this.resolveStatus.LoadFailed(err, DateTimeOffset.Now));
 		}
 
         virtual protected void OnLoadStarted()
 		{
-            UpdateLoadStatus(this.resolveStatus.LoadStarted(DateTimeOffset.Now));
+            UpdateResolveStatus(this.resolveStatus.LoadStarted(DateTimeOffset.Now));
 		}
 
         virtual protected void OnLoadSucceeded(ResolveSucceededDTO<DataType> dto)
 		{
             State<DataType> s;
             GetState(out s);
-            s.loadStatus = state.loadStatus.LoadSucceeded(DateTimeOffset.Now);
+            s.resolveStatus = state.resolveStatus.LoadSucceeded(DateTimeOffset.Now);
             s.data = dto.data;
             UpdateState(ref s);
 		}
@@ -62,13 +63,23 @@ namespace BeatThat.StateStores
         {
             State<DataType> s;
             GetState(out s);
-            s.loadStatus = state.loadStatus.LoadSucceeded(DateTimeOffset.Now);
+            s.resolveStatus = state.resolveStatus.LoadSucceeded(DateTimeOffset.Now);
             s.data = dto.data;
             UpdateState(ref s);
         }
 
-        virtual protected void UpdateState(ref State<DataType> state, bool sendUpdated = true)
+        virtual protected void UpdateState(
+            ref State<DataType> state, bool sendUpdated = true
+        )
         {
+#if UNITY_EDITOR || DEBUG_UNSTRIP
+            if(m_debug) {
+                Debug.Log("[" + GetType() + "] UpdateState from " 
+                          + JsonUtility.ToJson(m_state)
+                          + " to " + JsonUtility.ToJson(state));
+            }
+#endif
+
             m_state = state;
             if (sendUpdated)
             {
@@ -76,8 +87,19 @@ namespace BeatThat.StateStores
             }
         }
 
-        virtual protected void UpdateData(ref DataType data, bool sendUpdated = true)
+        virtual protected void UpdateData(
+            ref DataType data, bool sendUpdated = true
+        )
         {
+#if UNITY_EDITOR || DEBUG_UNSTRIP
+            if (m_debug)
+            {
+                Debug.Log("[" + GetType() + "] UpdateData from " 
+                          + JsonUtility.ToJson(m_state.data)
+                          + " to " + JsonUtility.ToJson(data));
+            }
+#endif
+
             m_state.data = data;
             if (sendUpdated)
             {
@@ -85,9 +107,21 @@ namespace BeatThat.StateStores
             }
         }
 
-        virtual protected void UpdateLoadStatus(ResolveStatus loadStatus, bool sendUpdated = true)
+        virtual protected void UpdateResolveStatus(
+            ResolveStatus resolveStatus, bool sendUpdated = true
+        )
         {
-            m_state.loadStatus = loadStatus;
+
+#if UNITY_EDITOR || DEBUG_UNSTRIP
+            if (m_debug)
+            {
+                Debug.Log("[" + GetType() + "] UpdateResolveStatus from " 
+                          + JsonUtility.ToJson(m_state.resolveStatus)
+                          + " to " + JsonUtility.ToJson(resolveStatus));
+            }
+#endif
+
+            m_state.resolveStatus = resolveStatus;
             if (sendUpdated)
             {
                 State<DataType>.Updated();
