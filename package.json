@@ -1,7 +1,7 @@
 {
   "name": "state-stores",
   "scope": "beatthat",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Use to store a loaded state object of arbitrary type, e.g. a user's profile.",
   "main": "index.js",
   "scripts": {
