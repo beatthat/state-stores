@@ -8,7 +8,11 @@ namespace BeatThat.StateStores
     /// </summary>
     public interface StateResolver<DataType>
 	{
-        Request<ResolveResponseDTO<DataType>> Resolve(Action<Request<ResolveResponseDTO<DataType>>> callback);
+        Request<ResolveResultDTO<DataType>> Resolve(Action<Request<ResolveResultDTO<DataType>>> callback = null);
+
+#if NET_4_6
+        System.Threading.Tasks.Task<ResolveResultDTO<DataType>> ResolveAsync();
+#endif
 	}
 }
 
