@@ -9,7 +9,7 @@ namespace BeatThat.StateStores
     /// </summary>
     public abstract class StateStore : BindingService, HasStateResolveStatus
     {
-        public abstract bool isLoaded { get; }
+        public abstract bool hasResolved { get; }
         public abstract ResolveStatus resolveStatus { get; }
     }
 
@@ -19,9 +19,9 @@ namespace BeatThat.StateStores
 
 		override protected void BindAll()
 		{
-            Bind <ResolveSucceededDTO<DataType>>(State<DataType>.RESOLVE_SUCCEEDED, this.OnLoadSucceeded);
-            Bind(State<DataType>.RESOLVE_STARTED, this.OnLoadStarted);
-            Bind <ResolveFailedDTO>(State<DataType>.RESOLVE_FAILED, this.OnLoadFailed);
+            Bind <ResolveSucceededDTO<DataType>>(State<DataType>.RESOLVE_SUCCEEDED, this.OnResolveSucceeded);
+            Bind(State<DataType>.RESOLVE_STARTED, this.OnResolveStarted);
+            Bind <ResolveFailedDTO>(State<DataType>.RESOLVE_FAILED, this.OnResolveFailed);
             Bind<StoreStateDTO<DataType>>(State<DataType>.STORE, this.OnStore);
             BindStore();
 		}
@@ -31,7 +31,7 @@ namespace BeatThat.StateStores
         /// </summary>
         virtual protected void BindStore() {}
 
-        override public bool isLoaded { get { return m_state.resolveStatus.hasResolved; } }
+        override public bool hasResolved { get { return m_state.resolveStatus.hasResolved; } }
 
 
         override public ResolveStatus resolveStatus  { get { return m_state.resolveStatus; } }
@@ -40,21 +40,21 @@ namespace BeatThat.StateStores
 
         public DataType stateData { get { return m_state.data; } }
 
-		virtual protected void OnLoadFailed(ResolveFailedDTO err)
+		virtual protected void OnResolveFailed(ResolveFailedDTO err)
 		{
-            UpdateResolveStatus(this.resolveStatus.LoadFailed(err, DateTimeOffset.Now));
+            UpdateResolveStatus(this.resolveStatus.Failed(err, DateTimeOffset.Now));
 		}
 
-        virtual protected void OnLoadStarted()
+        virtual protected void OnResolveStarted()
 		{
-            UpdateResolveStatus(this.resolveStatus.LoadStarted(DateTimeOffset.Now));
+            UpdateResolveStatus(this.resolveStatus.Started(DateTimeOffset.Now));
 		}
 
-        virtual protected void OnLoadSucceeded(ResolveSucceededDTO<DataType> dto)
+        virtual protected void OnResolveSucceeded(ResolveSucceededDTO<DataType> dto)
 		{
             State<DataType> s;
             GetState(out s);
-            s.resolveStatus = state.resolveStatus.LoadSucceeded(DateTimeOffset.Now);
+            s.resolveStatus = state.resolveStatus.Succeeded(DateTimeOffset.Now);
             s.data = dto.data;
             UpdateState(ref s);
 		}
@@ -63,7 +63,7 @@ namespace BeatThat.StateStores
         {
             State<DataType> s;
             GetState(out s);
-            s.resolveStatus = state.resolveStatus.LoadSucceeded(DateTimeOffset.Now);
+            s.resolveStatus = state.resolveStatus.Succeeded(DateTimeOffset.Now);
             s.data = dto.data;
             UpdateState(ref s);
         }

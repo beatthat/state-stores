@@ -11,7 +11,7 @@ namespace BeatThat.StateStores
 		public DateTimeOffset updatedAt;
 		public string loadError;
 
-		public ResolveStatus LoadFailed(ResolveFailedDTO dto, DateTimeOffset updateTime)
+        public ResolveStatus Failed(ResolveFailedDTO dto, DateTimeOffset updateTime)
 		{
 			return new ResolveStatus {
 				hasResolved = this.hasResolved,
@@ -22,7 +22,7 @@ namespace BeatThat.StateStores
 			};
 		}
 
-		public ResolveStatus LoadStarted(DateTimeOffset updateTime)
+        public ResolveStatus Started(DateTimeOffset updateTime)
 		{
 			return new ResolveStatus {
 				hasResolved = this.hasResolved,
@@ -33,7 +33,7 @@ namespace BeatThat.StateStores
 			};
 		}
 
-		public ResolveStatus LoadSucceeded(DateTimeOffset updateTime)
+        public ResolveStatus Succeeded(DateTimeOffset updateTime)
 		{
 			return new ResolveStatus {
 				hasResolved = true,
