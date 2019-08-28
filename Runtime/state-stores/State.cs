@@ -2,6 +2,7 @@ using System;
 using BeatThat.Bindings;
 using BeatThat.Notifications;
 using BeatThat.Requests;
+using UnityEngine;
 
 namespace BeatThat.StateStores
 {
@@ -62,12 +63,74 @@ namespace BeatThat.StateStores
         /// </summary>
         public static Request<DataType> Get(
             HasState<DataType> store, 
-            Action<Request<DataType>> callback)
+            Action<Request<DataType>> callback = null)
         {
             var r = new StateRequest(store);
             r.Execute(callback);
             return r;
         }
+
+
+#if NET_4_6
+        /// <summary>
+        /// Resolve the data and metadata for StateStore using async/await.
+        /// NOTE: this will throw an exception if the item cannot be found.
+        /// If you want to handle 'not found' or other errors without exceptions,
+        /// use @see ResolveAsync instead; it returns a ResolveResult<DataType> 
+        /// that would include details on failed resolves.
+        /// </summary>
+        public static async System.Threading.Tasks.Task<DataType> ResolveOrThrowAsync(
+            HasState<DataType> store)
+        {
+            return await Get(store);
+        }
+
+        /// <summary>
+        /// Resolve the data and metadata for StateStore using async/await.
+        /// NOTE: this method will return a ResolveResult<DataType> even if the item
+        /// fails to load, e.g. either not found or resolve error.
+        /// Use this version if you want to handle failed responses without try/catch.
+        /// If you'd rather an exception be thrown any time the data isn't available,
+        /// use @see ResolveOrThrowAsync.
+        /// </summary>
+        /// <returns>The async.</returns>
+        public static async System.Threading.Tasks.Task<ResolveResultDTO<DataType>> ResolveAsync(
+            HasState<DataType> store)
+        {
+            var r = new StateRequest(store);
+            try
+            {
+                var data = await r.ExecuteAsync();
+                return ResolveResultDTO<DataType>.ResolveSucceeded(data);
+            }
+            catch (Exception e)
+            {
+
+#if UNITY_EDITOR || DEBUG_UNSTRIP
+                var ae = e as AggregateException;
+                if (ae != null)
+                {
+                    foreach (var ie in ae.InnerExceptions)
+                    {
+                        Debug.LogError("error on execute async for type "
+                                       + typeof(DataType).Name
+                                       + ": " + ie.Message
+                                       + "\n" + ie.StackTrace
+                                      );
+                    }
+                }
+                else
+                {
+                    Debug.LogError("error on execute async for type "
+                                   + typeof(DataType).Name
+                                   + ": " + e.Message
+                                  );
+                }
+#endif
+                return ResolveResultDTO<DataType>.ResolveError(e.Message);
+            }
+        }
+#endif
 
         class StateRequest : RequestBase, Request<DataType>
         {

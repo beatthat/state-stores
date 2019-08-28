@@ -40,6 +40,17 @@ namespace BeatThat.StateStores
 
         public DataType stateData { get { return m_state.data; } }
 
+        public bool GetData(out DataType data)
+        {
+            if(!this.hasResolved)
+            {
+                data = default(DataType);
+                return false;
+            }
+            data = this.stateData;
+            return true;
+        }
+
 		virtual protected void OnResolveFailed(ResolveFailedDTO err)
 		{
             UpdateResolveStatus(this.resolveStatus.Failed(err, DateTimeOffset.Now));
@@ -137,11 +148,6 @@ namespace BeatThat.StateStores
         protected void GetState(out State<DataType> state)
         {
             state = m_state;
-        }
-
-        protected void GetData(out DataType data)
-        {
-            data = m_state.data;
         }
 
         private State<DataType> m_state;
