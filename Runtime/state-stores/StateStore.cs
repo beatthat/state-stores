@@ -14,35 +14,35 @@ namespace BeatThat.StateStores
     }
 
     public class StateStore<DataType> : StateStore, HasState<DataType>
-	{
+    {
         public bool m_debug;
 
-		override protected void BindAll()
-		{
-            Bind <ResolveSucceededDTO<DataType>>(State<DataType>.RESOLVE_SUCCEEDED, this.OnResolveSucceeded);
+        override protected void BindAll()
+        {
+            Bind<ResolveSucceededDTO<DataType>>(State<DataType>.RESOLVE_SUCCEEDED, this.OnResolveSucceeded);
             Bind(State<DataType>.RESOLVE_STARTED, this.OnResolveStarted);
-            Bind <ResolveFailedDTO>(State<DataType>.RESOLVE_FAILED, this.OnResolveFailed);
+            Bind<ResolveFailedDTO>(State<DataType>.RESOLVE_FAILED, this.OnResolveFailed);
             Bind<StoreStateDTO<DataType>>(State<DataType>.STORE, this.OnStore);
             BindStore();
-		}
+        }
 
         /// <summary>
         /// Override to add additional bindings
         /// </summary>
-        virtual protected void BindStore() {}
+        virtual protected void BindStore() { }
 
         override public bool hasResolved { get { return m_state.resolveStatus.hasResolved; } }
 
 
-        override public ResolveStatus resolveStatus  { get { return m_state.resolveStatus; } }
-			
+        override public ResolveStatus resolveStatus { get { return m_state.resolveStatus; } }
+
         public State<DataType> state { get { return m_state; } }
 
         public DataType stateData { get { return m_state.data; } }
 
         public bool GetData(out DataType data)
         {
-            if(!this.hasResolved)
+            if (!this.hasResolved)
             {
                 data = default(DataType);
                 return false;
@@ -51,24 +51,24 @@ namespace BeatThat.StateStores
             return true;
         }
 
-		virtual protected void OnResolveFailed(ResolveFailedDTO err)
-		{
+        virtual protected void OnResolveFailed(ResolveFailedDTO err)
+        {
             UpdateResolveStatus(this.resolveStatus.Failed(err, DateTimeOffset.Now));
-		}
+        }
 
         virtual protected void OnResolveStarted()
-		{
+        {
             UpdateResolveStatus(this.resolveStatus.Started(DateTimeOffset.Now));
-		}
+        }
 
         virtual protected void OnResolveSucceeded(ResolveSucceededDTO<DataType> dto)
-		{
+        {
             State<DataType> s;
             GetState(out s);
             s.resolveStatus = state.resolveStatus.Succeeded(DateTimeOffset.Now);
             s.data = dto.data;
             UpdateState(ref s);
-		}
+        }
 
         virtual protected void OnStore(StoreStateDTO<DataType> dto)
         {
@@ -84,8 +84,9 @@ namespace BeatThat.StateStores
         )
         {
 #if UNITY_EDITOR || DEBUG_UNSTRIP
-            if(m_debug) {
-                Debug.Log("[" + GetType() + "] UpdateState from " 
+            if (m_debug)
+            {
+                Debug.Log("[" + GetType() + "] UpdateState from "
                           + JsonUtility.ToJson(m_state)
                           + " to " + JsonUtility.ToJson(state));
             }
@@ -99,19 +100,23 @@ namespace BeatThat.StateStores
         }
 
         virtual protected void UpdateData(
-            ref DataType data, bool sendUpdated = true
+            ref DataType data,
+            bool sendUpdated = true,
+            bool disableAutoResolve = false
         )
         {
 #if UNITY_EDITOR || DEBUG_UNSTRIP
             if (m_debug)
             {
-                Debug.Log("[" + GetType() + "] UpdateData from " 
+                Debug.Log("[" + GetType() + "] UpdateData from "
                           + JsonUtility.ToJson(m_state.data)
                           + " to " + JsonUtility.ToJson(data));
             }
 #endif
-
             m_state.data = data;
+            m_state.resolveStatus = m_state.resolveStatus.hasResolved 
+                ? m_state.resolveStatus 
+                : m_state.resolveStatus.Succeeded(DateTimeOffset.Now);
             if (sendUpdated)
             {
                 State<DataType>.Updated();
@@ -126,7 +131,7 @@ namespace BeatThat.StateStores
 #if UNITY_EDITOR || DEBUG_UNSTRIP
             if (m_debug)
             {
-                Debug.Log("[" + GetType() + "] UpdateResolveStatus from " 
+                Debug.Log("[" + GetType() + "] UpdateResolveStatus from "
                           + JsonUtility.ToJson(m_state.resolveStatus)
                           + " to " + JsonUtility.ToJson(resolveStatus));
             }
@@ -151,7 +156,7 @@ namespace BeatThat.StateStores
         }
 
         private State<DataType> m_state;
-	}
+    }
 
 }
 
